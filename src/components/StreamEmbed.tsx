@@ -1,17 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type StreamPlatform = "kick" | "twitch";
 
 /**
- * Official Kick/Twitch player. Views count toward the channel as long as the player is
- * visible, playing, and not covered by other elements, so keep it large and unobstructed.
+ * Official Kick/Twitch player. Views only count while the player is actually playing, so it
+ * should stay large, visible, and not covered by other elements.
  */
 export function StreamEmbed({ platform, channel }: { platform: StreamPlatform; channel: string }) {
+  const boxRef = useRef<HTMLDivElement>(null);
   // Twitch requires the embedding hostname as `parent`, which is only known in the browser.
   const [host, setHost] = useState<string | null>(null);
-  useEffect(() => setHost(window.location.hostname), []);
+  const [ready, setReady] = useState(false);
+
+  // Browsers refuse autoplay in background tabs, and the Kick player never retries, so only
+  // load the player once the tab is in front and the embed is on screen.
+  useEffect(() => {
+    setHost(window.location.hostname);
+    const box = boxRef.current;
+    if (!box) return;
+
+    let onScreen = false;
+    const check = () => {
+      if (onScreen && document.visibilityState === "visible") setReady(true);
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      check();
+    });
+    observer.observe(box);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, []);
 
   const slug = encodeURIComponent(channel.trim().toLowerCase());
   const src =
@@ -20,8 +44,8 @@ export function StreamEmbed({ platform, channel }: { platform: StreamPlatform; c
       : host && `https://player.twitch.tv/?channel=${slug}&parent=${host}&autoplay=true&muted=true`;
 
   return (
-    <div className="aspect-video w-full overflow-hidden rounded-2xl border border-edge bg-panel">
-      {src && (
+    <div ref={boxRef} className="aspect-video w-full overflow-hidden rounded-2xl border border-edge bg-panel">
+      {ready && src && (
         <iframe
           src={src}
           title={`${channel} live stream`}
