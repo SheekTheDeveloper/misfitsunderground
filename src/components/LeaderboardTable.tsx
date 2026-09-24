@@ -18,6 +18,7 @@ export function LeaderboardTable({
   });
 
   if (rows.length === 0) return null;
+  const showPrizes = prizes.length > 0;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-edge bg-panel">
@@ -27,7 +28,7 @@ export function LeaderboardTable({
             <th className="px-4 py-3 sm:px-6">Rank</th>
             <th className="px-4 py-3 sm:px-6">Player</th>
             <th className="px-4 py-3 text-right sm:px-6">Wagered</th>
-            <th className="px-4 py-3 text-right sm:px-6">Prize</th>
+            {showPrizes && <th className="px-4 py-3 text-right sm:px-6">Prize</th>}
           </tr>
         </thead>
         <tbody>
@@ -40,9 +41,11 @@ export function LeaderboardTable({
               <td className="px-4 py-3 text-right tabular-nums sm:px-6">
                 {entry ? formatUsd(entry.wagered) : <span className="text-muted">—</span>}
               </td>
-              <td className="px-4 py-3 text-right font-semibold text-acid sm:px-6">
-                {formatPrize(prizes[rank - 1] ?? 0)}
-              </td>
+              {showPrizes && (
+                <td className="px-4 py-3 text-right font-semibold text-acid sm:px-6">
+                  {formatPrize(prizes[rank - 1] ?? 0)}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

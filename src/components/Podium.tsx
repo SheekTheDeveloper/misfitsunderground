@@ -30,9 +30,11 @@ export function Podium({ top, prizes }: { top: (LeaderboardEntry | undefined)[];
             <div className="mt-1 text-sm text-muted">
               {entry ? `${formatUsd(entry.wagered)} wagered` : "Be the one"}
             </div>
-            <div className="mt-4 inline-block rounded-full bg-acid/10 px-4 py-1 font-display text-2xl text-acid">
-              {formatPrize(prizes[place - 1] ?? 0)}
-            </div>
+            {prizes[place - 1] > 0 && (
+              <div className="mt-4 inline-block rounded-full bg-acid/10 px-4 py-1 font-display text-2xl text-acid">
+                {formatPrize(prizes[place - 1])}
+              </div>
+            )}
           </div>
         );
       })}
