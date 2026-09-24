@@ -4,9 +4,8 @@ export const site = {
   domain: "misfitsunderground.com",
   tagline: "Wager under code. Climb the board. Get paid.",
 
-  // TODO: confirm the real Roobet promo code and referral link.
-  affiliateCode: "MISFITS",
-  referralUrl: "https://roobet.com/?ref=MISFITS",
+  affiliateCode: "kingviolence",
+  referralUrl: "https://roobet.com/?ref=kingviolence",
 
   // Channels shown on the Streams page. `name` is optional (defaults to the channel).
   streams: [
