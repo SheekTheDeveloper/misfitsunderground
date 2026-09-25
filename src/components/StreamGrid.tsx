@@ -14,8 +14,16 @@ export type GridStream = {
 };
 
 export function StreamGrid({ streams }: { streams: GridStream[] }) {
-  // Key of the one stream with sound; unmuting another mutes this one so streams never talk over each other.
-  const [audibleKey, setAudibleKey] = useState<string | null>(null);
+  // Streams with sound on. Each toggles independently, so several can play audio at once.
+  const [audible, setAudible] = useState<ReadonlySet<string>>(new Set());
+
+  const toggleAudio = (key: string) =>
+    setAudible((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   return (
     // Wider than the rest of the site so two players per row stay a watchable size.
@@ -24,8 +32,8 @@ export function StreamGrid({ streams }: { streams: GridStream[] }) {
         <StreamCard
           key={key}
           {...s}
-          audible={audibleKey === key}
-          onToggleAudio={() => setAudibleKey((current) => (current === key ? null : key))}
+          audible={audible.has(key)}
+          onToggleAudio={() => toggleAudio(key)}
         />
       ))}
     </div>

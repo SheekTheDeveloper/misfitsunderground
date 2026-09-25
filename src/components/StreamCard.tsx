@@ -9,7 +9,7 @@ type Props = {
   name: string;
   live: boolean;
   viewers: number | null;
-  /** Whether this player has sound. Only one stream on the page is audible at a time. */
+  /** Whether this player has sound. */
   audible: boolean;
   onToggleAudio: () => void;
 };
@@ -68,7 +68,7 @@ export function StreamCard({ platform, channel, name, live, viewers, audible, on
               onClick={onToggleAudio}
               aria-pressed={audible}
               aria-label={audible ? `Mute ${name}` : `Unmute ${name}`}
-              title={audible ? "Mute" : "Unmute (mutes the others)"}
+              title={audible ? "Mute" : "Unmute"}
               className={`rounded-md border p-1.5 transition ${
                 audible ? "border-acid bg-acid text-ink" : "border-edge text-white hover:border-acid"
               }`}
