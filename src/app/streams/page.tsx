@@ -26,6 +26,11 @@ export default async function StreamsPage() {
         <p className="mt-4 text-muted">
           {liveCount > 0 ? `${liveCount} of the crew live right now.` : "Nobody's live right now. Check back soon."}
         </p>
+        <p className="mx-auto mt-6 max-w-xl rounded-xl border border-acid/30 bg-acid/10 px-4 py-3 text-sm">
+          <span className="font-semibold text-acid">Want to chat?</span> Chats on this page are read-only because of how Kick
+          embeds work. Open a stream&apos;s <span className="font-semibold">Chat</span>, then hit{" "}
+          <span className="font-semibold">Pop out chat ↗</span> to chat in a window where you can log in and type.
+        </p>
       </section>
 
       {sorted.length === 0 ? (

@@ -106,7 +106,7 @@ export function StreamCard({ platform, channel, name, live, viewers, audible, on
           {/* Browsers usually don't pass the viewer's Kick/Twitch login into an embedded frame, so
               typing works reliably only in the platform's own pop-out window. */}
           <p className="mt-2 text-right text-xs text-muted">
-            Can&apos;t type?{" "}
+            Read-only here. To chat,{" "}
             <button
               type="button"
               onClick={() => window.open(popoutUrl(platform, channel), `${channel}-chat`, "width=400,height=700")}
