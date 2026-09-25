@@ -18,6 +18,11 @@ function chatUrl(platform: StreamPlatform, channel: string) {
     : `https://www.twitch.tv/embed/${slug}/chat?parent=${window.location.hostname}&darkpopout`;
 }
 
+function popoutUrl(platform: StreamPlatform, channel: string) {
+  const slug = encodeURIComponent(channel.toLowerCase());
+  return platform === "kick" ? `https://kick.com/popout/${slug}/chat` : `https://www.twitch.tv/popout/${slug}/chat`;
+}
+
 export function StreamCard({ platform, channel, name, live, viewers }: Props) {
   // Chat stays closed (and unloaded) until asked for, so several live channels don't bury the page.
   const [chatOpen, setChatOpen] = useState(false);
@@ -62,11 +67,25 @@ export function StreamCard({ platform, channel, name, live, viewers }: Props) {
       <StreamEmbed platform={platform} channel={channel} />
 
       {chatOpen && (
-        <iframe
-          src={chatUrl(platform, channel)}
-          title={`${name} chat`}
-          className="mt-3 h-[420px] w-full rounded-2xl border border-edge bg-panel"
-        />
+        <>
+          <iframe
+            src={chatUrl(platform, channel)}
+            title={`${name} chat`}
+            className="mt-3 h-105 w-full rounded-2xl border border-edge bg-panel"
+          />
+          {/* Browsers usually don't pass the viewer's Kick/Twitch login into an embedded frame, so
+              typing works reliably only in the platform's own pop-out window. */}
+          <p className="mt-2 text-right text-xs text-muted">
+            Can&apos;t type?{" "}
+            <button
+              type="button"
+              onClick={() => window.open(popoutUrl(platform, channel), `${channel}-chat`, "width=400,height=700")}
+              className="font-semibold text-white underline hover:text-acid"
+            >
+              Pop out chat ↗
+            </button>
+          </p>
+        </>
       )}
     </section>
   );
