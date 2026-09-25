@@ -16,6 +16,8 @@ export const site = {
     { platform: "kick", channel: "devvlin", name: "Devvlin" },
     { platform: "kick", channel: "p0tzombie420", name: "p0tzombie420" },
     { platform: "kick", channel: "mysticintentions", name: "MysticIntentions" },
+    { platform: "kick", channel: "uubski", name: "Uubski" },
+    { platform: "kick", channel: "hawkinsarcade", name: "HawkinsArcade" },
     { platform: "twitch", channel: "sheekthedev", name: "SheekTheDev" },
   ] as { platform: "kick" | "twitch"; channel: string; name?: string }[],
 
