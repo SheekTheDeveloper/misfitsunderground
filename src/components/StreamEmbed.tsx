@@ -8,7 +8,15 @@ export type StreamPlatform = "kick" | "twitch";
  * Official Kick/Twitch player. Views only count while the player is actually playing, so it
  * should stay large, visible, and not covered by other elements.
  */
-export function StreamEmbed({ platform, channel }: { platform: StreamPlatform; channel: string }) {
+export function StreamEmbed({
+  platform,
+  channel,
+  muted = true,
+}: {
+  platform: StreamPlatform;
+  channel: string;
+  muted?: boolean;
+}) {
   const boxRef = useRef<HTMLDivElement>(null);
   // Twitch requires the embedding hostname as `parent`, which is only known in the browser.
   const [host, setHost] = useState<string | null>(null);
@@ -40,8 +48,8 @@ export function StreamEmbed({ platform, channel }: { platform: StreamPlatform; c
   const slug = encodeURIComponent(channel.trim().toLowerCase());
   const src =
     platform === "kick"
-      ? `https://player.kick.com/${slug}?autoplay=true&muted=true`
-      : host && `https://player.twitch.tv/?channel=${slug}&parent=${host}&autoplay=true&muted=true`;
+      ? `https://player.kick.com/${slug}?autoplay=true&muted=${muted}`
+      : host && `https://player.twitch.tv/?channel=${slug}&parent=${host}&autoplay=true&muted=${muted}`;
 
   return (
     <div ref={boxRef} className="aspect-video w-full overflow-hidden rounded-2xl border border-edge bg-panel">

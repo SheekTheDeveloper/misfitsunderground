@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { StreamCard } from "@/components/StreamCard";
+import { StreamGrid } from "@/components/StreamGrid";
 import { site } from "@/config/site";
 import { getLiveStatuses, streamKey } from "@/lib/live";
 
@@ -33,19 +33,16 @@ export default async function StreamsPage() {
           No streams yet. Check back soon.
         </p>
       ) : (
-        // Wider than the rest of the site so two players per row stay a watchable size.
-        <div className="relative left-1/2 grid w-[min(72rem,calc(100vw-2rem))] -translate-x-1/2 gap-x-6 gap-y-10 md:grid-cols-2">
-          {sorted.map((s) => (
-            <StreamCard
-              key={streamKey(s)}
-              platform={s.platform}
-              channel={s.channel}
-              name={s.name ?? s.channel}
-              live={Boolean(s.status?.live)}
-              viewers={s.status?.viewers ?? null}
-            />
-          ))}
-        </div>
+        <StreamGrid
+          streams={sorted.map((s) => ({
+            key: streamKey(s),
+            platform: s.platform,
+            channel: s.channel,
+            name: s.name ?? s.channel,
+            live: Boolean(s.status?.live),
+            viewers: s.status?.viewers ?? null,
+          }))}
+        />
       )}
     </>
   );

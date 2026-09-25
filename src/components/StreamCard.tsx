@@ -9,6 +9,9 @@ type Props = {
   name: string;
   live: boolean;
   viewers: number | null;
+  /** Whether this player has sound. Only one stream on the page is audible at a time. */
+  audible: boolean;
+  onToggleAudio: () => void;
 };
 
 function chatUrl(platform: StreamPlatform, channel: string) {
@@ -23,7 +26,20 @@ function popoutUrl(platform: StreamPlatform, channel: string) {
   return platform === "kick" ? `https://kick.com/popout/${slug}/chat` : `https://www.twitch.tv/popout/${slug}/chat`;
 }
 
-export function StreamCard({ platform, channel, name, live, viewers }: Props) {
+function SpeakerIcon({ on }: { on: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" />
+      {on ? (
+        <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" strokeLinecap="round" />
+      ) : (
+        <path d="m16 9 6 6m0-6-6 6" strokeLinecap="round" />
+      )}
+    </svg>
+  );
+}
+
+export function StreamCard({ platform, channel, name, live, viewers, audible, onToggleAudio }: Props) {
   // Chat stays closed (and unloaded) until asked for, so several live channels don't bury the page.
   const [chatOpen, setChatOpen] = useState(false);
   const channelUrl = platform === "kick" ? `https://kick.com/${channel}` : `https://twitch.tv/${channel}`;
@@ -49,6 +65,20 @@ export function StreamCard({ platform, channel, name, live, viewers }: Props) {
           {live && (
             <button
               type="button"
+              onClick={onToggleAudio}
+              aria-pressed={audible}
+              aria-label={audible ? `Mute ${name}` : `Unmute ${name}`}
+              title={audible ? "Mute" : "Unmute (mutes the others)"}
+              className={`rounded-md border p-1.5 transition ${
+                audible ? "border-acid bg-acid text-ink" : "border-edge text-white hover:border-acid"
+              }`}
+            >
+              <SpeakerIcon on={audible} />
+            </button>
+          )}
+          {live && (
+            <button
+              type="button"
               onClick={() => setChatOpen((open) => !open)}
               aria-expanded={chatOpen}
               className={`rounded-md border px-2.5 py-1 font-semibold transition ${
@@ -64,7 +94,7 @@ export function StreamCard({ platform, channel, name, live, viewers }: Props) {
         </div>
       </div>
 
-      <StreamEmbed platform={platform} channel={channel} />
+      <StreamEmbed platform={platform} channel={channel} muted={!audible} />
 
       {chatOpen && (
         <>
