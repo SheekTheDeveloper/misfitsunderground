@@ -85,10 +85,42 @@ export default async function Home() {
         </p>
       </section>
 
+      <section id="wager-rules" className="mt-10 rounded-2xl border border-edge bg-panel p-6">
+        <h2 className="font-display text-2xl">
+          How wagers <span className="text-acid">count</span>
+        </h2>
+        <p className="mt-2 text-sm text-muted">
+          Leaderboard wager amounts may differ from your statistics on Roobet, depending on the games you are playing:
+        </p>
+        <table className="mt-4 w-full text-sm">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-widest text-muted">
+              <th className="pb-2 font-normal">Game RTP</th>
+              <th className="pb-2 text-right font-normal">Wager counted</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-edge">
+            {[
+              ["97% or lower", "100%"],
+              ["97.01% – 98.99%", "50%"],
+              ["99% and over", "10%"],
+            ].map(([rtp, counted]) => (
+              <tr key={rtp}>
+                <td className="py-2">{rtp}</td>
+                <td className="py-2 text-right font-display text-xl text-acid tabular-nums">{counted}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="mt-4 text-xs text-muted">
+          Any abuse found by {site.affiliateCode} or Roobet may result in your prize being forfeit.
+        </p>
+      </section>
+
       <section className="mt-16 grid gap-4 sm:grid-cols-3">
         {[
           ["01", "Sign up", `Create a Roobet account using code ${site.affiliateCode}.`],
-          ["02", "Wager", "Every bet counts toward your weighted wager for the month."],
+          ["02", "Wager", "Bets count toward your monthly wager based on each game's RTP (see above)."],
           totalPrizePool > 0
             ? ["03", "Get paid", "Top players split the prize pool when the month ends."]
             : ["03", "Climb the board", "The biggest wagerers each month take the top spots."],
