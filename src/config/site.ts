@@ -12,6 +12,9 @@ export const site = {
     { platform: "kick", channel: "queenq", name: "QueenQ" },
     { platform: "kick", channel: "b8dk", name: "B8DK" },
     { platform: "kick", channel: "ismokethadank", name: "iSmokeThaDank" },
+    { platform: "kick", channel: "sheekthedev", name: "SheekTheDev" },
+    { platform: "twitch", channel: "sheekthedev", name: "SheekTheDev" },
+    { platform: "kick", channel: "devvlin", name: "Devvlin" },
   ] as { platform: "kick" | "twitch"; channel: string; name?: string }[],
 
   // Kick channel whose gifted-sub leaderboard shows on the Gifters tab.
