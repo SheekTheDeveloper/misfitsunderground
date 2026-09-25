@@ -57,6 +57,18 @@ export default async function Home() {
           <span className="rounded bg-panel px-2 py-1 font-mono font-bold text-acid">{site.affiliateCode}</span>{" "}
           on Roobet
         </p>
+        <p className="mt-3 max-w-md text-xs text-muted">
+          18+. Roobet isn&apos;t available in every country (including the US and UK). Check the{" "}
+          <a
+            href="https://roobet.com/terms-and-conditions"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-acid"
+          >
+            restricted countries
+          </a>{" "}
+          before signing up.
+        </p>
       </section>
 
       {!board && (

@@ -28,6 +28,11 @@ export function SiteFooter() {
           Roobet T&amp;Cs
         </a>
       </p>
+      <p className="mt-2">
+        Roobet is not available in every country, including the United States and the United Kingdom. Check
+        Roobet&apos;s T&amp;Cs to make sure it&apos;s available where you live before signing up. Accounts opened
+        from a restricted country can be closed and their bets voided.
+      </p>
       <p className="mt-1">© {new Date().getFullYear()} {site.name}</p>
     </footer>
   );
