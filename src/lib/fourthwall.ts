@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 
 const API_URL = "https://storefront-api.fourthwall.com/v1/collections/all/products";
 
@@ -31,16 +32,38 @@ export async function getMerch(shopUrl: string): Promise<MerchItem[] | null> {
   if (!token) return null;
 
   try {
-    const url = new URL(API_URL);
-    url.searchParams.set("storefront_token", token);
-    url.searchParams.set("currency", "USD");
-    url.searchParams.set("size", "50");
+    return await cachedMerch(shopUrl, token);
+  } catch (err) {
+    console.error("Failed to load Fourthwall products:", err);
+    return null;
+  }
+}
 
-    const res = await fetch(url, { next: { revalidate: 600 } });
-    if (!res.ok) throw new Error(`Fourthwall responded ${res.status}`);
+// Raw API pages are several MB each (too big for Next's fetch cache), so cache the trimmed list
+// instead. Errors throw through so a failed load is never cached.
+const cachedMerch = unstable_cache(
+  async (shopUrl: string, token: string): Promise<MerchItem[]> => {
+    const offers: FourthwallOffer[] = [];
+    // The API pages at most 50 products at a time; cap the loop so a bad response can't spin forever.
+    for (let page = 0; page < 20; page++) {
+      const url = new URL(API_URL);
+      url.searchParams.set("storefront_token", token);
+      url.searchParams.set("currency", "USD");
+      url.searchParams.set("size", "50");
+      url.searchParams.set("page", String(page));
 
-    const { results } = (await res.json()) as { results: FourthwallOffer[] };
-    return results.map((offer) => {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Fourthwall responded ${res.status}`);
+
+      const { results, paging } = (await res.json()) as {
+        results: FourthwallOffer[];
+        paging?: { hasNextPage: boolean };
+      };
+      offers.push(...results);
+      if (!paging?.hasNextPage) break;
+    }
+
+    return offers.map((offer) => {
       // Products show their cheapest variant; bundles carry a price of their own.
       const cheapest = offer.variants?.reduce((min, v) => (v.unitPrice.value < min.unitPrice.value ? v : min));
       return {
@@ -52,8 +75,7 @@ export async function getMerch(shopUrl: string): Promise<MerchItem[] | null> {
         soldOut: offer.state.type === "SOLD_OUT",
       };
     });
-  } catch (err) {
-    console.error("Failed to load Fourthwall products:", err);
-    return null;
-  }
-}
+  },
+  ["fourthwall-merch"],
+  { revalidate: 600 },
+);
