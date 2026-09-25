@@ -10,6 +10,12 @@ export const metadata: Metadata = {
 // Live status refreshes at most once a minute.
 export const revalidate = 60;
 
+// Each platform gets its own section, in this order.
+const platforms = [
+  { platform: "kick", label: "Kick" },
+  { platform: "twitch", label: "Twitch" },
+] as const;
+
 export default async function StreamsPage() {
   const statuses = await getLiveStatuses(site.streams);
   const withStatus = site.streams.map((s) => ({ ...s, status: statuses.get(streamKey(s)) }));
@@ -38,16 +44,34 @@ export default async function StreamsPage() {
           No streams yet. Check back soon.
         </p>
       ) : (
-        <StreamGrid
-          streams={sorted.map((s) => ({
-            key: streamKey(s),
-            platform: s.platform,
-            channel: s.channel,
-            name: s.name ?? s.channel,
-            live: Boolean(s.status?.live),
-            viewers: s.status?.viewers ?? null,
-          }))}
-        />
+        <div className="space-y-16">
+          {platforms.map(({ platform, label }) => {
+            const group = sorted.filter((s) => s.platform === platform);
+            if (group.length === 0) return null;
+            const groupLive = group.filter((s) => s.status?.live).length;
+            return (
+              <StreamGrid
+                key={platform}
+                title={
+                  <>
+                    {label}{" "}
+                    <span className="text-lg text-muted">
+                      {groupLive > 0 ? `· ${groupLive} live` : "· offline"}
+                    </span>
+                  </>
+                }
+                streams={group.map((s) => ({
+                  key: streamKey(s),
+                  platform: s.platform,
+                  channel: s.channel,
+                  name: s.name ?? s.channel,
+                  live: Boolean(s.status?.live),
+                  viewers: s.status?.viewers ?? null,
+                }))}
+              />
+            );
+          })}
+        </div>
       )}
     </>
   );
