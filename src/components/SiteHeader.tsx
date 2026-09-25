@@ -7,6 +7,8 @@ import { site } from "@/config/site";
 const tabs = [
   { href: "/", label: "Leaderboard" },
   { href: "/streams", label: "Streams" },
+  { href: "/gifters", label: "Gifters" },
+  { href: "/merch", label: "Merch" },
 ];
 
 export function SiteHeader() {
@@ -27,7 +29,7 @@ export function SiteHeader() {
           Join Roobet
         </a>
       </div>
-      <nav className="-mb-px flex gap-6">
+      <nav className="-mb-px flex gap-5 overflow-x-auto sm:gap-6">
         {tabs.map((tab) => {
           const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
           return (
@@ -35,7 +37,7 @@ export function SiteHeader() {
               key={tab.href}
               href={tab.href}
               aria-current={active ? "page" : undefined}
-              className={`border-b-2 pb-3 text-sm font-semibold uppercase tracking-widest transition ${
+              className={`shrink-0 border-b-2 pb-3 text-xs font-semibold sm:text-sm uppercase tracking-widest transition ${
                 active ? "border-acid text-white" : "border-transparent text-muted hover:text-white"
               }`}
             >

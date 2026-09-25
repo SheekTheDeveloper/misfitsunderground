@@ -14,6 +14,12 @@ export const site = {
     { platform: "kick", channel: "ismokethadank", name: "iSmokeThaDank" },
   ] as { platform: "kick" | "twitch"; channel: string; name?: string }[],
 
+  // Kick channel whose gifted-sub leaderboard shows on the Gifters tab.
+  giftersChannel: "king_violence",
+
+  // Fourthwall shop. Products show on the Merch tab once FOURTHWALL_STOREFRONT_TOKEN is set.
+  merchUrl: "https://izzythekid92-shop.fourthwall.com",
+
   // Leaderboard period. "monthly" resets at 00:00 UTC on the 1st of each month.
   period: "monthly" as const,
 
