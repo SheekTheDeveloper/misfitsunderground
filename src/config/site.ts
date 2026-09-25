@@ -9,7 +9,7 @@ export const site = {
   // Channels shown on the Streams page. `name` is optional (defaults to the channel).
   streams: [
     { platform: "kick", channel: "king_violence", name: "King_Violence" },
-    { platform: "kick", channel: "queenq", name: "QueenQ" },
+    { platform: "kick", channel: "queen_violence", name: "Queen_Violence" },
     { platform: "kick", channel: "b8dk", name: "B8DK" },
     { platform: "kick", channel: "ismokethadank", name: "iSmokeThaDank" },
     { platform: "kick", channel: "sheekthedev", name: "SheekTheDev" },
