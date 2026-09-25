@@ -1,4 +1,6 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
+import { getBroadcasterToken } from "./kickAuth";
 
 export type Gifter = { username: string; quantity: number };
 
@@ -39,3 +41,55 @@ export async function getGiftLeaderboards(channel: string): Promise<GiftLeaderbo
     return null;
   }
 }
+
+export type KicksSupporter = { username: string; amount: number };
+
+export type KicksLeaderboards = {
+  week: KicksSupporter[];
+  month: KicksSupporter[];
+  allTime: KicksSupporter[];
+};
+
+type KicksEntry = { rank: number; username: string; gifted_amount: number };
+
+/**
+ * KICKs leaderboard from Kick's official API. Null until the broadcaster has connected.
+ * Successful results are cached for 5 minutes so token reads and refreshes don't run on every
+ * visit; failures throw inside the cache so they're never stored.
+ */
+export async function getKicksLeaderboards(): Promise<KicksLeaderboards | null> {
+  try {
+    return await cachedKicksLeaderboards();
+  } catch (err) {
+    if (err instanceof NotConnectedError) return null;
+    console.error("Failed to load KICKs leaderboard:", err);
+    return null;
+  }
+}
+
+class NotConnectedError extends Error {}
+
+const cachedKicksLeaderboards = unstable_cache(
+  async (): Promise<KicksLeaderboards> => {
+    const token = await getBroadcasterToken();
+    if (!token) throw new NotConnectedError();
+
+    const res = await fetch("https://api.kick.com/public/v1/kicks/leaderboard?top=10", {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error(`Kick responded ${res.status}`);
+
+    const { data } = (await res.json()) as {
+      data: { week?: KicksEntry[]; month?: KicksEntry[]; lifetime?: KicksEntry[] };
+    };
+    const clean = (list: KicksEntry[] = []) =>
+      [...list]
+        .sort((a, b) => a.rank - b.rank)
+        .map((e) => ({ username: e.username, amount: e.gifted_amount }))
+        .filter((e) => e.amount > 0);
+
+    return { week: clean(data.week), month: clean(data.month), allTime: clean(data.lifetime) };
+  },
+  ["kicks-leaderboard"],
+  { revalidate: 300 },
+);
