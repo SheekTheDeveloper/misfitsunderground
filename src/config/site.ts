@@ -43,7 +43,7 @@ export const site = {
 
   // Starting prizes per place, in USD (index 0 = 1st place). Edit them at /admin; the saved values replace these.
   // Empty hides prizes; the pool, podium badges, and Prize column appear once set.
-  prizes: [] as number[],
+  prizes: [250, 150, 100] as number[],
 
   // Socials. Leave a value empty to hide it.
   socials: {
