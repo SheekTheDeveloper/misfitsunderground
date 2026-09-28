@@ -96,7 +96,10 @@ function SignIn({ error }: { error?: string }) {
       >
         Log in with Kick
       </a>
-      <p className="mt-4 text-xs text-muted">Kick only tells this site your username. No password or email is shared.</p>
+      <p className="mt-4 text-xs text-muted">
+        Kick&apos;s consent screen mentions your email because that permission includes it. This site only uses your
+        Kick username and ID to check you&apos;re on the admin list, and never stores your email or password.
+      </p>
     </section>
   );
 }
