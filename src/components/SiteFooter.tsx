@@ -33,6 +33,10 @@ export function SiteFooter() {
         Roobet&apos;s T&amp;Cs to make sure it&apos;s available where you live before signing up. Accounts opened
         from a restricted country can be closed and their bets voided.
       </p>
+      <p className="mt-2">
+        Privacy: we count visits anonymously, with no cookies and no personal data stored. Do Not Track and Global
+        Privacy Control are respected.
+      </p>
       <p className="mt-1">© {new Date().getFullYear()} {site.name}</p>
     </footer>
   );

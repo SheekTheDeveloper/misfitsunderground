@@ -12,7 +12,24 @@ npm run dev                  # http://localhost:3000
 
 ## Customizing
 
-Edit `src/config/site.ts` to change the promo code, referral link, prizes, number of players shown, and social links.
+Streams and prizes are edited on the site at **/admin** (see below). Edit `src/config/site.ts` for everything else: the promo code, referral link, number of players shown, social links, and who can sign in to /admin.
+
+## Admin panel (/admin)
+
+King, Queen, and the site owner sign in with "Log in with Kick". Only the Kick user IDs in `site.admins` get in. From there they can:
+
+- add, rename, reorder, and remove streams (each channel is checked on Kick or Twitch before it's saved, because one bad Kick slug breaks live status for every Kick stream)
+- set the leaderboard prizes
+- see traffic: page views, unique visitors, Roobet link clicks, pages, referrers, countries, and devices
+- see site status (which services are configured, whether the KICKs connection is live) and a log of who changed what
+
+Sign-in uses King's Kick developer app, which must have the **user:read** scope ticked (kick.com/settings/developer). The session cookie is signed with `KICK_ADMIN_KEY`, so rotating that key signs everyone out.
+
+Edits are saved in Upstash Redis (`site:streams`, `site:prizes`). Until something is saved, the pages use `streams` and `prizes` from `site.ts`.
+
+## Analytics
+
+`src/components/Tracker.tsx` sends a beacon to `/api/track` on each page view and on clicks to other sites. It sets no cookies and stores no IP addresses: daily counts go in a Redis hash, and unique visitors are estimated with a HyperLogLog of salted hashes. Bots and visitors with Do Not Track or Global Privacy Control are skipped. Only production records hits (`VERCEL_ENV=production`), because local runs share the production database. Each page view costs about 6 Upstash commands; the free plan allows 500K a month.
 
 ## How it works
 
@@ -32,4 +49,4 @@ Every push to the main branch redeploys automatically.
 
 ## Stream embed
 
-Add channels to `streams` in `src/config/site.ts`; they appear on the /streams page. The page uses the official Kick or Twitch player, set to autoplay muted. Keep it large and visible: players that are hidden, covered by other elements, or tiny go against Twitch's embed rules and may not count as views.
+Add channels at /admin; they appear on the /streams page. The page uses the official Kick or Twitch player, set to autoplay muted. Keep it large and visible: players that are hidden, covered by other elements, or tiny go against Twitch's embed rules and may not count as views.

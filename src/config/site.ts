@@ -6,7 +6,14 @@ export const site = {
   affiliateCode: "kingviolence",
   referralUrl: "https://roobet.com/?ref=kingviolence",
 
-  // Channels shown on the Streams page. `name` is optional (defaults to the channel).
+  // Kick accounts that can sign in at /admin, matched by Kick user ID (usernames can change).
+  admins: [
+    { kickUserId: 1151117, name: "King_Violence" },
+    { kickUserId: 106723284, name: "Queen_Violence" },
+    { kickUserId: 63764815, name: "SheekTheDev" },
+  ],
+
+  // Starting list for the Streams page. Once anyone edits streams at /admin, the saved list replaces this one.
   streams: [
     { platform: "kick", channel: "king_violence", name: "King_Violence" },
     { platform: "kick", channel: "queen-violence", name: "Queen_Violence" },
@@ -34,8 +41,8 @@ export const site = {
   // Number of players shown on the board.
   displayCount: 10,
 
-  // Prize for each place, in USD. Index 0 = 1st place, e.g. [500, 250, 100].
-  // Leave empty to hide prizes; the pool, podium badges, and Prize column appear once set.
+  // Starting prizes per place, in USD (index 0 = 1st place). Edit them at /admin; the saved values replace these.
+  // Empty hides prizes; the pool, podium badges, and Prize column appear once set.
   prizes: [] as number[],
 
   // Socials. Leave a value empty to hide it.
@@ -45,5 +52,3 @@ export const site = {
     x: "https://x.com/King_violence69",
   },
 };
-
-export const totalPrizePool = site.prizes.reduce((sum, p) => sum + p, 0);

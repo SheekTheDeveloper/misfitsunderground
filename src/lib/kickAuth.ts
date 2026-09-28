@@ -1,24 +1,21 @@
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
-import { Redis } from "@upstash/redis";
 import { site } from "@/config/site";
+import { redis } from "./redis";
 
 const AUTH_URL = "https://id.kick.com/oauth/authorize";
 const TOKEN_URL = "https://id.kick.com/oauth/token";
 const TOKENS_KEY = "kick:broadcaster-tokens";
-const SCOPES = "kicks:read";
+/** kicks:read for the broadcaster connection; user:read to identify who is signing in to /admin. */
+export type KickScope = "kicks:read" | "user:read";
+
+/** Short-lived cookies that carry a login's PKCE verifier, state, and flow to /api/kick/callback. */
+export const KICK_FLOW_COOKIE = { httpOnly: true, secure: true, sameSite: "lax", path: "/api/kick", maxAge: 600 } as const;
 
 type StoredTokens = { accessToken: string; refreshToken: string; expiresAt: number };
 type TokenResponse = { access_token: string; refresh_token: string; expires_in: number | string };
 
 const redirectUri = () => process.env.KICK_REDIRECT_URI ?? `https://${site.domain}/api/kick/callback`;
-
-/** Upstash Redis, configured either by Vercel's integration (KV_*) or manually (UPSTASH_*). */
-function redis(): Redis | null {
-  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
-  return url && token ? new Redis({ url, token }) : null;
-}
 
 function credentials() {
   const clientId = process.env.KICK_CLIENT_ID;
@@ -30,14 +27,14 @@ function credentials() {
 const base64url = (buf: Buffer) => buf.toString("base64url");
 
 /** Builds the Kick consent URL plus the PKCE verifier and state the callback must check. */
-export function createAuthRequest() {
+export function createAuthRequest(scope: KickScope) {
   const verifier = base64url(randomBytes(32));
   const state = base64url(randomBytes(16));
   const url = new URL(AUTH_URL);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id", credentials().clientId);
   url.searchParams.set("redirect_uri", redirectUri());
-  url.searchParams.set("scope", SCOPES);
+  url.searchParams.set("scope", scope);
   url.searchParams.set("code_challenge", base64url(createHash("sha256").update(verifier).digest()));
   url.searchParams.set("code_challenge_method", "S256");
   url.searchParams.set("state", state);
@@ -71,6 +68,30 @@ export async function exchangeCode(code: string, verifier: string) {
     redirect_uri: redirectUri(),
   });
   await db.set(TOKENS_KEY, tokens);
+}
+
+/** Exchanges an admin sign-in code for the Kick user it belongs to. The token is used once and never stored. */
+export async function fetchKickUser(code: string, verifier: string): Promise<{ id: number; name: string }> {
+  const { accessToken } = await requestTokens({
+    grant_type: "authorization_code",
+    code,
+    code_verifier: verifier,
+    redirect_uri: redirectUri(),
+  });
+  const res = await fetch("https://api.kick.com/public/v1/users", {
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Kick users API responded ${res.status}: ${await res.text()}`);
+  const { data } = (await res.json()) as { data: { user_id: number; name: string }[] };
+  if (!data?.[0]) throw new Error("Kick users API returned no user");
+  return { id: data[0].user_id, name: data[0].name };
+}
+
+/** When the stored broadcaster login expires (it refreshes itself), or null if King hasn't connected. */
+export async function broadcasterConnection(): Promise<{ expiresAt: number } | null> {
+  const stored = await redis()?.get<StoredTokens>(TOKENS_KEY);
+  return stored ? { expiresAt: stored.expiresAt } : null;
 }
 
 /**

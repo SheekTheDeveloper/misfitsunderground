@@ -1,7 +1,8 @@
 import { Countdown } from "@/components/Countdown";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import { Podium } from "@/components/Podium";
-import { site, totalPrizePool } from "@/config/site";
+import { site } from "@/config/site";
+import { getPrizes } from "@/lib/content";
 import { formatPrize, formatUsd } from "@/lib/format";
 import { currentMonthlyPeriod } from "@/lib/period";
 import { getLeaderboard, type Leaderboard } from "@/lib/roobet";
@@ -11,6 +12,8 @@ export const revalidate = 300;
 
 export default async function Home() {
   const period = currentMonthlyPeriod();
+  const prizes = await getPrizes();
+  const totalPrizePool = prizes.reduce((sum, p) => sum + p, 0);
 
   let board: Leaderboard | null = null;
   try {
@@ -78,8 +81,8 @@ export default async function Home() {
       )}
 
       <section className="mt-6 space-y-6">
-        <Podium top={entries.slice(0, 3)} prizes={site.prizes} />
-        <LeaderboardTable entries={entries} prizes={site.prizes} startRank={4} count={site.displayCount} />
+        <Podium top={entries.slice(0, 3)} prizes={prizes} />
+        <LeaderboardTable entries={entries} prizes={prizes} startRank={4} count={site.displayCount} />
         <p className="text-center text-xs text-muted">
           Updates every 5 minutes. Ranked by weighted wager. Resets 00:00 UTC on the 1st.
         </p>

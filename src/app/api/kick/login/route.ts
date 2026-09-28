@@ -1,8 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
-import { createAuthRequest } from "@/lib/kickAuth";
-
-const COOKIE = { httpOnly: true, secure: true, sameSite: "lax", path: "/api/kick", maxAge: 600 } as const;
+import { createAuthRequest, KICK_FLOW_COOKIE } from "@/lib/kickAuth";
 
 function isAdmin(key: string | null) {
   const expected = process.env.KICK_ADMIN_KEY;
@@ -18,9 +16,10 @@ export function GET(req: NextRequest) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const { url, verifier, state } = createAuthRequest();
+  const { url, verifier, state } = createAuthRequest("kicks:read");
   const res = NextResponse.redirect(url);
-  res.cookies.set("kick_verifier", verifier, COOKIE);
-  res.cookies.set("kick_state", state, COOKIE);
+  res.cookies.set("kick_verifier", verifier, KICK_FLOW_COOKIE);
+  res.cookies.set("kick_state", state, KICK_FLOW_COOKIE);
+  res.cookies.set("kick_flow", "broadcaster", KICK_FLOW_COOKIE);
   return res;
 }

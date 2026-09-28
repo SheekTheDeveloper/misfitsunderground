@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Tracker } from "@/components/Tracker";
 import { site } from "@/config/site";
 import "./globals.css";
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
           <SiteFooter />
         </div>
+        <Tracker />
       </body>
     </html>
   );

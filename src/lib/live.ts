@@ -7,7 +7,7 @@ export type LiveStatus = { live: boolean; viewers: number | null };
 export const streamKey = (s: StreamRef) => `${s.platform}:${s.channel.toLowerCase()}`;
 
 // App access tokens last ~60 days; reuse one for a day instead of requesting per page render.
-const kickAppToken = unstable_cache(
+export const kickAppToken = unstable_cache(
   async (): Promise<string> => {
     const clientId = process.env.KICK_CLIENT_ID;
     const clientSecret = process.env.KICK_CLIENT_SECRET;

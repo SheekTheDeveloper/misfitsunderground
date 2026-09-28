@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { StreamGrid } from "@/components/StreamGrid";
 import { site } from "@/config/site";
+import { getStreams } from "@/lib/content";
 import { getLiveStatuses, streamKey } from "@/lib/live";
 
 export const metadata: Metadata = {
@@ -17,8 +18,9 @@ const platforms = [
 ] as const;
 
 export default async function StreamsPage() {
-  const statuses = await getLiveStatuses(site.streams);
-  const withStatus = site.streams.map((s) => ({ ...s, status: statuses.get(streamKey(s)) }));
+  const streams = await getStreams();
+  const statuses = await getLiveStatuses(streams);
+  const withStatus = streams.map((s) => ({ ...s, status: statuses.get(streamKey(s)) }));
   // Live channels first; otherwise keep the order from the config.
   const sorted = [...withStatus.filter((s) => s.status?.live), ...withStatus.filter((s) => !s.status?.live)];
   const liveCount = withStatus.filter((s) => s.status?.live).length;
