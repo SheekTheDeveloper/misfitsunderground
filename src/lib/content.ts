@@ -12,19 +12,20 @@ const PRIZES_KEY = "site:prizes";
 const LOG_KEY = "admin:log";
 
 // Pages read these through the cache; admin saves expire the tag so changes show right away.
+// The keys include the site.ts defaults, so editing a default also skips the old cached value.
 export const CONTENT_TAG = "site-content";
 
 /** Streams saved from /admin, or the starting list in site.ts. */
 export const getStreams = unstable_cache(
   async (): Promise<Stream[]> => (await redis()?.get<Stream[]>(STREAMS_KEY)) ?? site.streams,
-  ["streams"],
+  ["streams", JSON.stringify(site.streams)],
   { tags: [CONTENT_TAG] },
 );
 
 /** Prizes saved from /admin, or the starting values in site.ts. */
 export const getPrizes = unstable_cache(
   async (): Promise<number[]> => (await redis()?.get<number[]>(PRIZES_KEY)) ?? site.prizes,
-  ["prizes"],
+  ["prizes", JSON.stringify(site.prizes)],
   { tags: [CONTENT_TAG] },
 );
 
